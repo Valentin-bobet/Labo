@@ -1,61 +1,30 @@
-const pg = require('pg');
+const TaskPgDAO = require('../models/taskPgDAO');
 
+const taskPgDAO = new TaskPgDAO();
 
 // Display list of all Task
-exports.task_list = function(req, res, next) {
-    //res.send('NOT IMPLEMENTED: Tasks list');
+exports.task_list = function(req, res,next){
 
-    const connectionString = process.env.DATABASE_URL;
+    taskPgDAO.getAllTasks(
+        function(lesTasks){
 
-    const db = new pg.Client(connectionString);
-    db.connect();
-    const query = {
-    // give the query a unique name
-    name: 'fetch-all-task',
-    text: 'SELECT * FROM task',
-    };
-
-    db.query(query, function(err, result){
-        if (err) {
-            console.log(err.stack);
-            res.send('ERROR');
-
-        } else {
-            res.render('task', { listeTasks : result });
-
+            res.render('tasks',{listeNoms: lesTasks})
         }
-    });
-
+    );
 };
 
-// Display detail page for a specific Task
+
+//Display One Task find by id
 exports.task_detail = function(req, res, next) {
-
-    const connectionString = process.env.DATABASE_URL;
-
-    const db = new pg.Client(connectionString);
-    db.connect();
-    const query = {
-    // give the query a unique name
-    name: 'fetch-task',
-    text: 'SELECT * FROM task WHERE id = $1',
-    values: [req.params.id]
-    };
-
-    db.query(query, function(err, result){
-        if (err) {
-            console.log(err.stack);
-            res.send('ERROR');
-
-        } else {
-            console.log(result.rows[0]['libelle']);
-            res.send('Task detail: ' + req.params.id + ' Libelle : '+ result.rows[0]['libelle']);
-
+    taskPgDAO.getTaskFromId(req.params.id,
+        function(uneTask){
+            res.send("l'utilisateur "+ req.params.id+ " s'appelle "+ uneTask.nom);
         }
-    });
+    )
 };
+
 
 // Handle Task create on POST
 exports.task_ajout_post = function(req, res) {
-    res.send('NOT IMPLEMENTED: Task create POST');
+    res.send('NOT IMPLEMENTED: Task add');
 };
